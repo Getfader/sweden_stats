@@ -198,41 +198,8 @@ def get_construction_data():
 
     return df
 
-# Call the functions to get the data
-sweden_energy = get_energy_data()
-sweden_age = get_age_data()
-healthcare_sweden = get_healthcare_data()
-construction_sweden = get_construction_data()
-
-# # Displaying the data
-# print("Energy Data:")
-# print(sweden_energy.head())
-# print("\nAge Data:")
-# print(sweden_age.head())
-# print("\nHealthcare Data:")
-# print(healthcare_sweden.head())
-# print("\nConstruction Data:")
-# print(construction_sweden.head())
 
 
-# # Display the data in Streamlit
-# st.title("Data Overview")
-
-# # Display energy data
-# st.subheader("Energy Data")
-# st.write(sweden_energy)
-
-# # Display age data
-# st.subheader("Age Data")
-# st.write(sweden_age)
-
-# # Display healthcare data
-# st.subheader("Healthcare Data")
-# st.write(healthcare_sweden)
-
-# # Display construction data
-# st.subheader("Construction Data")
-# st.write(construction_sweden)
 
 def create_plotly_figure_age(df):
     # Create a figure
@@ -244,7 +211,7 @@ def create_plotly_figure_age(df):
         y=df[('mean_age', 'Male')], 
         mode='lines', 
         name='Mean Male Age',
-        line=dict(dash='dash', width=2, color='blue')
+        line=dict(width=2, color='blue')
     ))
 
     # Add the second trace with red color
@@ -253,22 +220,63 @@ def create_plotly_figure_age(df):
         y=df[('mean_age', 'Female')], 
         mode='lines', 
         name='Mean Female Age',
+        line=dict(width=2, color='red')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df.index, 
+        y=df[('mean_age', 'Total')], 
+        mode='lines', 
+        name='Mean Overall Age',
+        line=dict(width=2, color='green')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df.index, 
+        y=df[('median_age', 'Male')], 
+        mode='lines', 
+        name='Median Male Age',
+        line=dict(dash='dash', width=2, color='blue')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df.index, 
+        y=df[('median_age', 'Female')], 
+        mode='lines', 
+        name='Median Female Age',
         line=dict(dash='dash', width=2, color='red')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df.index, 
+        y=df[('median_age', 'Total')], 
+        mode='lines', 
+        name='Median Overall Age',
+        line=dict(dash='dash',width=2, color='green')
     ))
 
     # Customizations
     fig.update_layout(
-        title='Mean age over the years',
+        title='Age over the years',
         xaxis_title='Time',
-        yaxis_title='Age'
+        yaxis_title='Age',
+        xaxis_showgrid=False,
+        yaxis_showgrid=False
     )
 
     return fig
 
 
+
+
+
+fig = create_plotly_figure_age(get_age_data())
 # Streamlit app
-st.title("Interactive Plotly Chart in Streamlit")
+st.title("Sweden")
+with st.container():
+   st.write("Exploring age in Sweden")
+   st.plotly_chart(fig, theme='streamlit')
+
+
 
 # Display the plot
-fig = create_plotly_figure_age(get_age_data())
-st.plotly_chart(fig)
