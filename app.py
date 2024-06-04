@@ -2,6 +2,7 @@ from pyscbwrapper import SCB
 import pandas as pd
 import numpy as np
 import streamlit as st
+import plotly.graph_objects as go
 
 def get_energy_data():
     # Initialize SCB client
@@ -214,21 +215,60 @@ construction_sweden = get_construction_data()
 # print(construction_sweden.head())
 
 
-# Display the data in Streamlit
-st.title("Data Overview")
+# # Display the data in Streamlit
+# st.title("Data Overview")
 
-# Display energy data
-st.subheader("Energy Data")
-st.write(sweden_energy)
+# # Display energy data
+# st.subheader("Energy Data")
+# st.write(sweden_energy)
 
-# Display age data
-st.subheader("Age Data")
-st.write(sweden_age)
+# # Display age data
+# st.subheader("Age Data")
+# st.write(sweden_age)
 
-# Display healthcare data
-st.subheader("Healthcare Data")
-st.write(healthcare_sweden)
+# # Display healthcare data
+# st.subheader("Healthcare Data")
+# st.write(healthcare_sweden)
 
-# Display construction data
-st.subheader("Construction Data")
-st.write(construction_sweden)
+# # Display construction data
+# st.subheader("Construction Data")
+# st.write(construction_sweden)
+
+def create_plotly_figure_age(df):
+    # Create a figure
+    fig = go.Figure()
+
+    # Add the first trace with blue color
+    fig.add_trace(go.Scatter(
+        x=df.index, 
+        y=df[('mean_age', 'Male')], 
+        mode='lines', 
+        name='Mean Male Age',
+        line=dict(dash='dash', width=2, color='blue')
+    ))
+
+    # Add the second trace with red color
+    fig.add_trace(go.Scatter(
+        x=df.index, 
+        y=df[('mean_age', 'Female')], 
+        mode='lines', 
+        name='Mean Female Age',
+        line=dict(dash='dash', width=2, color='red')
+    ))
+
+    # Customizations
+    fig.update_layout(
+        title='Mean age over the years',
+        xaxis_title='Time',
+        yaxis_title='Age'
+    )
+
+    return fig
+
+
+# Streamlit app
+st.title("Interactive Plotly Chart in Streamlit")
+
+# Display the plot
+fig = create_plotly_figure_age(get_age_data())
+st.plotly_chart(fig)
