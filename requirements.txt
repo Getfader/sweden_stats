@@ -1,0 +1,4 @@
+pyscbwrapper
+streamlit
+pandas
+numpy
