@@ -2,3 +2,4 @@ pyscbwrapper
 streamlit
 pandas
 numpy
+plotly
