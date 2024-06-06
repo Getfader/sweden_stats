@@ -126,7 +126,7 @@ def get_healthcare_data():
     df = pd.DataFrame(data)
 
     # Split the 'key' column into separate columns
-    df['year'] = pd.DataFrame(df['key'].tolist(), index=df.index)
+    df['year'] = pd.DataFrame(df['key'].tolist(), index=df.index).astype(int)
 
     # Drop the original 'key' column
     df.drop('key', axis=1, inplace=True)
@@ -180,6 +180,21 @@ def get_construction_data():
 
     # Split the 'key' column into separate columns
     df[['region','category','year']] = pd.DataFrame(df['key'].tolist(), index=df.index)
+    df['year'] = df['year'].astype(int)
+
+    region_mapping = {
+        '00': 'The Country',
+        '0001': 'Metropolitan Areas',
+        '0010': 'Greater Stockholm',
+        '0020': 'Greater Gothenburg',
+        '0030': 'Greater Malmö',
+        '0002': 'County Regions I - III',
+        '4': 'County Region I (north)',
+        '5': 'County Region II (central)',
+        '6': 'County Region III (south)'
+    }
+
+    df['region'] = df['region'].replace(region_mapping)
 
     # Drop the original 'key' column
     df.drop('key', axis=1, inplace=True)
