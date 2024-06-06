@@ -6,18 +6,18 @@ from house import app as house_app
 
 # Dictionary to store the pages and their names
 PAGES = {
-    "Age Analysis": age_app,
-    "Health Analysis": health_app,
-    "Energy Analysis": energy_app,
-    "House Analysis": house_app
+    "Age": age_app,
+    "Healthcare": health_app,
+    "Energy": energy_app,
+    "Apartment Construction": house_app
 }
 
 def main():
-    # Set up the layout
-    st.title('Explore Sweden')
+    # Force wide mode
+    st.set_page_config(layout="wide")
 
     # Navigation dropdown at the top
-    selected_page = st.selectbox('Check out another statistic:', list(PAGES.keys()))
+    selected_page = st.selectbox('Ask a different question:', list(PAGES.keys()))
 
     # Run the app function for the selected page
     page = PAGES[selected_page]
@@ -25,4 +25,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
