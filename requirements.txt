@@ -3,3 +3,4 @@ streamlit
 pandas
 numpy
 plotly
+pytrends==4.7.3
