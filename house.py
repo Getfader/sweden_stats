@@ -32,7 +32,7 @@ def app():
                                       (construction_data.index <= selected_years[1])]
 
     # Columns
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([3,7])
 
     if not filtered_data.empty:
         # Calculate difference between highest and lowest values for the latest year
