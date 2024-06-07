@@ -6,6 +6,12 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 def get_energy_data():
+    """
+    Retrieves and processes energy production data from Statistics Sweden (SCB).
+
+    Returns:
+        DataFrame: Energy production data pivoted by year.
+    """
     # Initialize SCB client
     scb = SCB('sv')
 
@@ -50,7 +56,7 @@ def get_energy_data():
 
     # Convert the column to float type
     df['value'] = df['value'].astype(float)
-
+    df['year'] = df['year'].astype(int)
     # Create Pivot table
     pivot_df = df.pivot_table(index='year', columns='category', values='value')
 
@@ -58,10 +64,25 @@ def get_energy_data():
     pivot_df.columns=['Gas Turbines', 'Import', 'Nuclear', 'Condensing Turbines', 
                       'Main Activity Producer CHP', 'Autoproducer CHP', 'Pumped Storage', 
                       'Sum of Supply (GWh)', 'Hydro', 'Wind', 'Solar']
+        # Calculate the mean of each column
+    column_means = pivot_df.mean()
+
+    # Sort the columns based on their mean values in descending order
+    sorted_columns = column_means.sort_values(ascending=False).index
+
+    # Reorder the DataFrame columns based on the sorted column order
+    pivot_df = pivot_df[sorted_columns]
 
     return pivot_df
 
 def get_age_data():
+    """
+    Retrieves and processes population age data from Statistics Sweden (SCB).
+
+    Returns:
+        DataFrame: Population age data pivoted by year and gender.
+    """
+
     # Initialize SCB client
     scb = SCB('sv')
 
@@ -105,6 +126,12 @@ def get_age_data():
     return pivot_df
 
 def get_healthcare_data():
+    """
+    Retrieves and processes healthcare spending data from Statistics Sweden (SCB).
+
+    Returns:
+        DataFrame: Healthcare spending data indexed by year.
+    """
     # Initialize SCB client
     scb = SCB('sv')
 
@@ -144,6 +171,12 @@ def get_healthcare_data():
     return df
 
 def get_construction_data():
+    """
+    Retrieves and processes construction cost data from Statistics Sweden (SCB).
+
+    Returns:
+        DataFrame: Construction cost data indexed by year and region.
+    """
     # Initialize SCB client
     scb = SCB('sv')
 
@@ -214,102 +247,239 @@ def get_construction_data():
 
     return df
 
-def create_plotly_figure_age(df):
-    # Create a figure
+def create_mean_median_chart(age_data, start_year, end_year):
+    """
+    Creates a line chart displaying the mean and median age over time.
+
+    Args:
+        age_data (DataFrame): Population age data.
+        start_year (int): Start year for the chart.
+        end_year (int): End year for the chart.
+
+    Returns:
+        plotly.graph_objects.Figure: Line chart displaying mean and median age.
+    """
+    # Filter data based on the selected time span
+    filtered_data = age_data.loc[start_year:end_year]
+
+    # Get Streamlit theme colors
+    primary_color = st.get_option("theme.primaryColor")
+    secondary_color = st.get_option("theme.secondaryBackgroundColor")
+
     fig = go.Figure()
 
-    # Add the first trace with blue color
+    # Add mean age data
     fig.add_trace(go.Scatter(
-        x=df.index, 
-        y=df[('mean_age', 'Male')], 
-        mode='lines', 
-        name='Mean Male Age',
-        line=dict(width=2, color='#2ec0f3')
-    ))
+        x=filtered_data.index, y=filtered_data['mean_age']['Overall'],
+        mode='lines', name='Mean Age',
+        line=dict(color=primary_color)))
 
-    # Add the second trace with red color
+    # Add median age data
     fig.add_trace(go.Scatter(
-        x=df.index, 
-        y=df[('mean_age', 'Female')], 
-        mode='lines', 
-        name='Mean Female Age',
-        line=dict(width=2, color='#f32ec0')
-    ))
+        x=filtered_data.index, y=filtered_data['median_age']['Overall'],
+        mode='lines', name='Median Age',
+        line=dict(color=secondary_color)))
 
-    fig.add_trace(go.Scatter(
-        x=df.index, 
-        y=df[('mean_age', 'Overall')], 
-        mode='lines', 
-        name='Mean Overall Age',
-        line=dict(width=2, color='#c0f32e')
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=df.index, 
-        y=df[('median_age', 'Male')], 
-        mode='lines', 
-        name='Median Male Age',
-        line=dict(dash='dash', width=2, color='#2ec0f3')
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=df.index, 
-        y=df[('median_age', 'Female')], 
-        mode='lines', 
-        name='Median Female Age',
-        line=dict(dash='dash', width=2, color='#f32ec0')
-    ))
-
-    fig.add_trace(go.Scatter(
-        x=df.index, 
-        y=df[('median_age', 'Overall')], 
-        mode='lines', 
-        name='Median Overall Age',
-        line=dict(dash='dash',width=2, color='#c0f32e')
-    ))
-
-    # Customizations
     fig.update_layout(
-        title='AGE OVER TIME',
-        xaxis_title='Time',
+        title='Mean and Median Age Over Time',
+        xaxis_title='Year',
         yaxis_title='Age',
-        xaxis_showgrid=False,
-        yaxis_showgrid=False,
-        title_font_size=24,  # Font size for the title
-        xaxis=dict(title_font_size=18),  # Font size for the x-axis label
-        yaxis=dict(title_font_size=18),  # Font size for the y-axis label
-        legend=dict(font=dict(size=16))  # Font size for the legend
-        )
+        legend=dict(y=0.9, x=1),
+        xaxis=dict(range=[start_year, end_year]),
+        yaxis=dict(showgrid=False),
+        template='plotly_white'
+    )
 
     return fig
 
+def create_gender_age_chart(age_data, start_year, end_year):
+    """
+    Creates a line chart displaying mean and median age by gender over time.
 
-def plotly_line_figure_energy(df):
+    Args:
+        age_data (DataFrame): Population age data.
+        start_year (int): Start year for the chart.
+        end_year (int): End year for the chart.
 
-    # Columns to include in the line chart
-    columns = ['Import', 'Nuclear', 'Hydro', 'Wind', 'Solar']
+    Returns:
+        plotly.graph_objects.Figure: Line chart displaying mean and median age by gender.
+    """
+    # Filter data based on the selected time span
+    filtered_data = age_data.loc[start_year:end_year]
 
-    # Set colors
-    colors = {'Import':'#f32ec0', 'Nuclear':'#c0f32e', 'Hydro':'#1e7d9e', 'Wind':'#2ed4f3', 'Solar':'#f3612e'}
+    # Colors for male and female
+    male_color = '#2578BE'
+    female_color = '#BE25B3'
 
-    # Create a line chart using Plotly Express
-    fig = px.line(df, x=df.index, y=columns, title='Energy Supply Over Time', color_discrete_map=colors)
+    fig = go.Figure()
 
-    # Customize the layout
-    fig.update_layout(xaxis_title='Year', yaxis_title='Supply (GWh)')
+    # Add mean age data for males
+    fig.add_trace(go.Scatter(
+        x=filtered_data.index, y=filtered_data['mean_age']['Male'],
+        mode='lines', name='Mean Age (Male)',
+        line=dict(color=male_color)))
 
+    # Add median age data for males
+    fig.add_trace(go.Scatter(
+        x=filtered_data.index, y=filtered_data['median_age']['Male'],
+        mode='lines', name='Median Age (Male)',
+        line=dict(color=male_color, dash='dash')))
+
+    # Add mean age data for females
+    fig.add_trace(go.Scatter(
+        x=filtered_data.index, y=filtered_data['mean_age']['Female'],
+        mode='lines', name='Mean Age (Female)',
+        line=dict(color=female_color)))
+
+    # Add median age data for females
+    fig.add_trace(go.Scatter(
+        x=filtered_data.index, y=filtered_data['median_age']['Female'],
+        mode='lines', name='Median Age (Female)',
+        line=dict(color=female_color, dash='dash')))
 
     fig.update_layout(
-        title='ENERGY SUPPLY',
-        xaxis_title='Time',
-        yaxis_title='Energy (GWh)',
-        xaxis_showgrid=False,
-        yaxis_showgrid=False,
-        title_font_size=24,  # Font size for the title
-        xaxis=dict(title_font_size=18),  # Font size for the x-axis label
-        yaxis=dict(title_font_size=18),  # Font size for the y-axis label
-        legend=dict(font=dict(size=16))  # Font size for the legend
-        )
-    
+        title='Mean and Median Age Over Time by Gender',
+        xaxis_title='Year',
+        yaxis_title='Age',
+        legend=dict(y=0.9, x=1),
+        xaxis=dict(range=[start_year, end_year]),
+        yaxis=dict(showgrid=False),
+        template='plotly_white'
+    )
 
     return fig
+
+def create_stacked_bar_chart(selected_year_data, selected_years):
+    """
+    Creates a stacked bar chart displaying energy supply by source for a selected year range.
+
+    Args:
+        selected_year_data (DataFrame): Energy supply data for the selected year range.
+        selected_years (tuple): Tuple containing the start and end years.
+
+    Returns:
+        plotly.graph_objects.Figure: Stacked bar chart displaying energy supply.
+    """
+    # Create a figure for the stacked bar chart
+    fig = go.Figure()
+
+    # Add traces for each energy source
+    for column in selected_year_data.columns:
+        if column != 'Sum of Supply (GWh)':  # Exclude 'Sum of Supply' column
+            fig.add_trace(go.Bar(x=selected_year_data.index, y=selected_year_data[column], name=column))
+
+    # Add annotations above each bar for 'Sum of Supply'
+    for i, column in enumerate(selected_year_data.columns):
+        if column == 'Sum of Supply (GWh)':
+            for year, supply_value in zip(selected_year_data.index, selected_year_data[column]):
+                fig.add_annotation(
+                    x=year,  # X coordinate for the annotation
+                    y=supply_value,  # Y coordinate for the annotation
+                    text=f"{(supply_value/1000):.0f}K",  # Text of the annotation
+                    showarrow=False,  # Show an arrow pointing to the bar
+                    yshift=10
+                )
+
+    # Update layout
+    fig.update_layout(
+        barmode='stack',
+        title=f'Energy Supply in Sweden ({selected_years[0]} - {selected_years[1]})',
+        xaxis_title='Year',
+        yaxis_title='GWh',
+        template="plotly"
+    )
+
+    return fig
+
+def calculate_average(data):
+    """
+    Calculates the average of a given dataset.
+
+    Args:
+        data (Series or DataFrame): Input data.
+
+    Returns:
+        float: Average value.
+    """
+    return data.mean()
+
+def calculate_yearly_growth(data):
+    """
+    Calculates the yearly growth rate of a given dataset.
+
+    Args:
+        data (Series or DataFrame): Input data.
+
+    Returns:
+        Series or DataFrame: Yearly growth rates.
+    """
+    return data.pct_change() * 100  # Calculate percentage change
+
+def calculate_metrics(filtered_data, selected_years, healthcare_data):
+    """
+    Calculates healthcare spending metrics.
+
+    Args:
+        filtered_data (DataFrame): Filtered healthcare spending data.
+        selected_years (tuple): Tuple containing the start and end years.
+        healthcare_data (DataFrame): Healthcare spending data.
+
+    Returns:
+        tuple: Tuple containing average spending, average yearly growth rate of healthcare spending,
+               and average yearly growth rate of GDP.
+    """
+    # Calculate average healthcare spending
+    average_spending = calculate_average(filtered_data['Total healthcare costs'])
+    # Calculate yearly growth rate for healthcare spending
+    yearly_growth_healthcare = calculate_yearly_growth(filtered_data['Total healthcare costs'])
+    average_growth_healthcare = yearly_growth_healthcare.mean()
+    # Filter GDP data for selected year range
+    gdp_data_filtered = healthcare_data.loc[selected_years[0]:selected_years[1], 'GDP at marketprice']
+    # Calculate yearly growth rate for GDP
+    yearly_growth_gdp = calculate_yearly_growth(gdp_data_filtered)
+    average_growth_gdp = yearly_growth_gdp.mean()
+
+    return average_spending, average_growth_healthcare, average_growth_gdp
+
+def format_difference(difference):
+    """
+    Formats a difference value into a human-readable string with a 'K' suffix.
+
+    Args:
+        difference (float): Difference value.
+
+    Returns:
+        str: Formatted difference string.
+    """
+    # Round to nearest thousand
+    rounded_difference = round(difference / 1000, 1)
+
+    # Convert to string with K suffix
+    formatted_difference = f"{rounded_difference}K"
+
+    return formatted_difference
+
+def calculate_relative_percent_increase(data, region, start_year, end_year):
+    """
+    Calculates the relative percent increase in construction costs for a specific region over a specified time span.
+
+    Args:
+        data (DataFrame): Construction cost data indexed by year and region.
+        region (str): Region for which the relative percent increase is calculated.
+        start_year (int): Start year of the time span.
+        end_year (int): End year of the time span.
+
+    Returns:
+        float: Relative percent increase in construction costs.
+    """
+    # Filter data for the selected region and year range
+    region_data = data[(data["region"] == region) & (data.index >= start_year) & (data.index <= end_year)]
+
+    # Extract the first and last values for the selected region
+    first_value = region_data.iloc[0]['Total Production costs / Apartment Area sqm']
+    last_value = region_data.iloc[-1]['Total Production costs / Apartment Area sqm']
+
+    # Calculate the relative percent increase
+    relative_percent_increase = ((last_value - first_value) / first_value) * 100
+
+    return relative_percent_increase

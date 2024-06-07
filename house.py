@@ -1,18 +1,22 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from utils.helpers import get_construction_data
-
-def format_difference(difference):
-    # Round to nearest thousand
-    rounded_difference = round(difference / 1000, 1)
-
-    # Convert to string with K suffix
-    formatted_difference = f"{rounded_difference}K"
-
-    return formatted_difference
+from utils.helpers import get_construction_data, format_difference, calculate_relative_percent_increase
 
 def app():
+    """
+    Display a Streamlit app for visualizing construction data related to apartment costs in Sweden.
+
+    This function sets up a Streamlit app to visualize construction data related to apartment costs in Sweden.
+    It loads construction data, filters it based on the selected year range, and calculates various metrics.
+    The app displays the difference between the cheapest and most expensive regions in terms of apartment costs,
+    both in actual value and relative percentage.
+    Additionally, it allows users to select a specific region and calculates the relative percent increase in apartment costs.
+    It also plots a line chart comparing the square meter price between different regions over the selected years.
+
+    Returns:
+        None
+    """
     st.title("How much does it cost to build new apartments in Sweden?")
 
     # Load construction data
@@ -37,7 +41,7 @@ def app():
         lowest_value = latest_year_data['Total Production costs / Apartment Area sqm'].min()
         difference_actual = highest_value - lowest_value
         difference_actual_formatted = format_difference(difference_actual)
-    
+
         # Calculate relative percentage difference
         difference_percentage = ((highest_value - lowest_value) / lowest_value) * 100
 
@@ -55,12 +59,10 @@ def app():
 
             # Dropdown to select region for relative percent increase calculation
             selected_region = st.selectbox("Select Region for Relative Percent Increase", construction_data["region"].unique())
-            
+
             if selected_region in construction_data["region"].unique():
-                # Calculate relative percent increase from first date to last for the selected region
-                first_value = construction_data.loc[(construction_data["region"] == selected_region) & (construction_data.index == selected_years[0]), 'Total Production costs / Apartment Area sqm'].iloc[0]
-                last_value = construction_data.loc[(construction_data["region"] == selected_region) & (construction_data.index == selected_years[1]), 'Total Production costs / Apartment Area sqm'].iloc[0]
-                relative_percent_increase = ((last_value - first_value) / first_value) * 100
+                # Calculate relative percent increase using the new function
+                relative_percent_increase = calculate_relative_percent_increase(construction_data, selected_region, selected_years[0], selected_years[1])
 
                 st.subheader(f"Relative percent increase in {selected_region} from {selected_years[0]} to {selected_years[1]}:")
                 st.metric(label="Relative Percent Increase", value=f"{relative_percent_increase:.2f}%")
