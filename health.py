@@ -1,14 +1,20 @@
 import streamlit as st
 import plotly.graph_objects as go
-from utils.helpers import get_healthcare_data
-
-def calculate_average(data):
-    return data.mean()
-
-def calculate_yearly_growth(data):
-    return data.pct_change() * 100  # Calculate percentage change
+from utils.helpers import get_healthcare_data, calculate_metrics
 
 def app():
+    """
+    Display a Streamlit app for visualizing healthcare spending data.
+
+    This function sets up a Streamlit app to visualize healthcare spending data for Sweden.
+    It loads healthcare data, filters it based on the selected year range, and calculates various metrics.
+    The app displays metrics such as the proportion of healthcare spending to total GDP,
+    average healthcare spending, average yearly growth rates for healthcare spending and GDP,
+    and a stacked bar chart showing total healthcare costs and remaining GDP over the selected years.
+
+    Returns:
+        None
+    """
     # Title and navigation
     st.title("How much money does Sweden spend on Healthcare?")
 
@@ -35,7 +41,6 @@ def app():
     col1, col2 = st.columns([3, 7])  # 3/10 and 7/10 widths
 
     with col1:
-        
         # Subheader providing context for the metrics
         st.subheader("Healthcare Metrics")
 
@@ -50,24 +55,13 @@ def app():
         # Show metric
         st.metric(label=f"Healthcare Proportion of Total GDP for {last_year} and change from previous year", value=f"{gdp_percentage:.2f}%", delta=f"{delta_gdp_percentage:.2f}%")
 
-        # Calculate average healthcare spending
-        average_spending = calculate_average(filtered_data['Total healthcare costs'])
+        # Calculate metrics
+        average_spending, average_growth_healthcare, average_growth_gdp = calculate_metrics(filtered_data, selected_years, healthcare_data)
+
+        # Show metrics
         st.metric(label=f"Average Healthcare Spending ({selected_years[0]} - {selected_years[1]})", value=f"{(average_spending / 1000):.2f}B SEK")
-
-        # Calculate yearly growth rate for healthcare spending
-        yearly_growth_healthcare = calculate_yearly_growth(filtered_data['Total healthcare costs'])
-        average_growth_healthcare = yearly_growth_healthcare.mean()
         st.metric(label=f"Average Yearly Growth Rate for Healthcare Spending ({selected_years[0]} - {selected_years[1]})", value=f"{average_growth_healthcare:.2f}%")
-
-        # Filter GDP data for selected year range
-        gdp_data_filtered = healthcare_data.loc[selected_years[0]:selected_years[1], 'GDP at marketprice']
-
-        # Calculate yearly growth rate for GDP
-        yearly_growth_gdp = calculate_yearly_growth(gdp_data_filtered)
-        average_growth_gdp = yearly_growth_gdp.mean()
         st.metric(label=f"Average Yearly Growth Rate for GDP ({selected_years[0]} - {selected_years[1]})", value=f"{average_growth_gdp:.2f}%")
-
-
 
     with col2:
         # Create stacked bar chart
