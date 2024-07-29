@@ -27,5 +27,5 @@ The Sweden Stats Dashboard is a Streamlit application that visualizes various da
 
 1. Clone the repository:
    
-   git clone https://github.com/yourusername/sweden-stats-dashboard.git
-   cd sweden-stats-dashboard
+   git clone https://github.com/getfader/sweden_stats.git
+   cd sweden_stats
