@@ -101,7 +101,7 @@ def app():
 
         # Update layout to remove gridlines
         fig.update_layout(barmode='stack', title=f'Total Healthcare Costs vs. GDP at Market Price ({selected_years[0]} - {selected_years[1]})',
-                        xaxis_title='Year', yaxis_title='Million SEK',
+                        xaxis_title='Year', yaxis_title='Billion SEK',
                         template="plotly", xaxis=dict(showgrid=False), yaxis=dict(showgrid=False))
 
         # Show plot
