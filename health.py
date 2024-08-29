@@ -83,7 +83,7 @@ def app():
 
         # Add annotations at the top of each bar
         for i, row in filtered_data.iterrows():
-            gdp_value_billions = row['GDP at marketprice'] / 1_000  # Convert to billions
+            gdp_value_billions = row['GDP at marketprice'] / 1000  # Convert to billions
             fig.add_annotation(
                 x=i,
                 y=row['GDP at marketprice'],
@@ -101,6 +101,7 @@ def app():
 
         # Update layout to remove gridlines
         fig.update_layout(barmode='stack', title=f'Total Healthcare Costs vs. GDP at Market Price ({selected_years[0]} - {selected_years[1]})',
+
                         xaxis_title='Year', yaxis_title='Million SEK',
                         template="plotly", xaxis=dict(showgrid=False),  
                         yaxis=dict(
@@ -109,7 +110,7 @@ def app():
                         tickformat=',.0f',  # Display ticks as 1, 2, 3, etc.
                         tickvals=filtered_data['Total healthcare costs'] / 1e9,  # Divide by 1 billion
                     )
-                    )
+
         # Show plot
         st.plotly_chart(fig)
 

@@ -1,0 +1,6 @@
+pyscbwrapper
+streamlit
+pandas
+numpy
+plotly
+pytrends

@@ -32,7 +32,7 @@ def app():
                                       (construction_data.index <= selected_years[1])]
 
     # Columns
-    col1, col2 = st.columns([3,7])
+    col1, col2 = st.columns([4,6])
 
     if not filtered_data.empty:
         # Calculate difference between highest and lowest values for the latest year
@@ -47,11 +47,9 @@ def app():
 
         # Display big numbers using st.metric() in the left column
         with col1:
-            # Format the subheader string
-            subheader_text = "Difference between cheapest and most expensive region:"
 
             # Display the subheader
-            st.subheader(subheader_text)
+            st.markdown("#### **Difference between cheapest and most expensive region**")
 
             # Display big numbers using st.metric() in the left column
             st.metric(label="Difference (Actual value)", value=difference_actual_formatted)
@@ -64,13 +62,13 @@ def app():
                 # Calculate relative percent increase using the new function
                 relative_percent_increase = calculate_relative_percent_increase(construction_data, selected_region, selected_years[0], selected_years[1])
 
-                st.subheader(f"Relative percent increase in {selected_region} from {selected_years[0]} to {selected_years[1]}:")
+                st.markdown(f"#### **{selected_region} from {selected_years[0]} to {selected_years[1]}:**")
                 st.metric(label="Relative Percent Increase", value=f"{relative_percent_increase:.2f}%")
             else:
                 st.write(f"No data available for the region: {selected_region}")
 
         with col2:
-            st.subheader("Comparing square meter price between different regions")
+            st.markdown("#### **Comparing square meter price between different regions**")
 
             # Create a line plot
             fig = go.Figure()
