@@ -83,7 +83,7 @@ def app():
 
         # Add annotations at the top of each bar
         for i, row in filtered_data.iterrows():
-            gdp_value_billions = row['GDP at marketprice'] / 1_000  # Convert to billions
+            gdp_value_billions = row['GDP at marketprice'] / 1000  # Convert to billions
             fig.add_annotation(
                 x=i,
                 y=row['GDP at marketprice'],
