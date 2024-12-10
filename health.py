@@ -77,7 +77,7 @@ def app():
         # Add the remaining GDP as the stacked bar on top of healthcare costs
         fig.add_trace(go.Bar(x=filtered_data.index,
                             y=filtered_data['Remaining GDP'],
-                            name='GDP at Marketprice',  # Updated label
+                            name='GDP excluding healthcare costs',  # Updated label
                             marker_color=st.get_option("theme.primaryColor"),  # Match Streamlit theme
                             ))
 
@@ -99,7 +99,7 @@ def app():
         # Update layout to remove gridlines
         fig.update_layout(barmode='stack', title=f'Total Healthcare Costs vs. GDP at Market Price ({selected_years[0]} - {selected_years[1]})',
                         xaxis_title='Year', yaxis_title='Billion SEK',
-                        template="plotly", xaxis=dict(showgrid=False), yaxis=dict(showgrid=False))
+                        template="plotly", xaxis=dict(showgrid=False), yaxis=dict(showgrid=False, tickformat=".2s"))
 
         # Show plot
         st.plotly_chart(fig)
