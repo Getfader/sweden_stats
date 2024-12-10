@@ -22,19 +22,20 @@ def get_energy_data():
     scb.go_down('ElProdAr')
 
     # Set query parameters
-    scb.set_query(produktionsslag=['total tillförsel av el',
-                                   'vattenkraft',
-                                   'pumpkraft',
-                                   'kärnkraft',
-                                   'konventionell värmekraft, fjärrvärme',
-                                   'konventionell värmekraft, industri',
-                                   'vindkraft',
-                                   'solkraft',
-                                   'konventionell värmekraft, kondensproduktion',
-                                   'konventionell värmekraft, gasturbin- och annan produktion',
-                                   'import'], 
-                  tabellinnehåll=['Brutto'], 
-                  år=[str(year) for year in range(1986, 2023)])
+    scb.set_query(
+        produktionsslag=[
+            'total tillförsel av el',  # 'Tot'
+            'vattenkraft',            # 'Vattenkraft'
+            'pumpkraft',              # 'Pumpkraft'
+            'kärnkraft',              # 'Karnkraft'
+            'konventionell värmekraft, fjärrvärme',  # 'Kraftvf'
+            'konventionell värmekraft, industri',   # 'Kraftvi'
+            'vindkraft',              # 'Vind'
+            'solkraft',               # 'sol'
+            'import'                  # 'Imp'
+        ],
+        tabellinnehåll=['Brutto'],
+        år=[str(year) for year in range(1986, 2023)])
 
     # Retrieve data
     data = scb.get_data()['data']
@@ -60,11 +61,22 @@ def get_energy_data():
     # Create Pivot table
     pivot_df = df.pivot_table(index='year', columns='category', values='value')
 
-    # Rename columns
-    pivot_df.columns=['Gas Turbines', 'Import', 'Nuclear', 'Condensing Turbines', 
-                      'Main Activity Producer CHP', 'Autoproducer CHP', 'Pumped Storage', 
-                      'Sum of Supply (GWh)', 'Hydro', 'Wind', 'Solar']
-        # Calculate the mean of each column
+    category_map = {
+        'Tot': 'Sum of Supply (GWh)',
+        'Vattenkraft': 'Hydro',
+        'Pumpkraft': 'Pumped Storage',
+        'Karnkraft': 'Nuclear',
+        'Kraftvf': 'Main Activity Producer CHP',
+        'Kraftvi': 'Autoproducer CHP',
+        'Vind': 'Wind',
+        'sol': 'Solar',
+        'Imp': 'Import',
+    }
+
+    # Rename pivot_df columns based on the mapping
+    pivot_df = pivot_df.rename(columns=category_map)
+    
+    # Calculate the mean of each column
     column_means = pivot_df.mean()
 
     # Sort the columns based on their mean values in descending order
