@@ -35,7 +35,7 @@ def app():
     filtered_data = healthcare_data.loc[selected_years[0]:selected_years[1]]
 
     # Calculate the remaining GDP after subtracting healthcare costs
-    filtered_data['Remaining GDP'] = (filtered_data['GDP at marketprice'] - filtered_data['Total healthcare costs']) / 1000  # Convert to billions
+    filtered_data['Remaining GDP'] = (filtered_data['GDP at marketprice'] - filtered_data['Total healthcare costs'])
 
     # Columns
     col1, col2 = st.columns([3, 7])  # 3/10 and 7/10 widths
