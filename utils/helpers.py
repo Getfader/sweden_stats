@@ -500,3 +500,16 @@ def calculate_relative_percent_increase(data, region, start_year, end_year):
     relative_percent_increase = ((last_value - first_value) / first_value) * 100
 
     return relative_percent_increase
+
+def format_to_billions(value):
+    """
+    Converts a value in thousands SEK to billions SEK and adds the appropriate suffix.
+
+    Parameters:
+        value (float): The value in thousands SEK.
+
+    Returns:
+        str: The formatted value in billions with the 'B SEK' suffix.
+    """
+    value_in_billions = value / 1000  # Convert from thousands to billions
+    return f"{value_in_billions:,.2f}B SEK"
