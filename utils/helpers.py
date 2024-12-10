@@ -396,7 +396,12 @@ def create_stacked_bar_chart(selected_year_data, selected_years):
     fig.update_layout(
         barmode='stack',
         title=f'Energy Supply in Sweden ({selected_years[0]} - {selected_years[1]})',
-        xaxis_title='Year',
+        xaxis=dict(
+            title='Year',
+            tickvals=selected_year_data.index,  # Ensure a tick for every year
+            ticktext=[str(year) for year in selected_year_data.index],  # Use string representation of years
+            tickangle=45  # Optional: Angle ticks for better readability
+        ),
         yaxis_title='GWh',
         template="plotly"
     )
