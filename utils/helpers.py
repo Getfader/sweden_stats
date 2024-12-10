@@ -508,7 +508,7 @@ def calculate_relative_percent_increase(data, region, start_year, end_year):
 
 def format_to_billions(value):
     """
-    Converts a value in thousands SEK to billions SEK and adds the appropriate suffix.
+    Converts a value in SEK to billions SEK and adds the appropriate suffix.
 
     Parameters:
         value (float): The value in thousands SEK.
