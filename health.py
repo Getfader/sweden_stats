@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
-from utils.helpers import get_healthcare_data, calculate_metrics
+from utils.helpers import get_healthcare_data, calculate_metrics, format_to_billions
 
 def app():
     """
@@ -35,7 +35,7 @@ def app():
     filtered_data = healthcare_data.loc[selected_years[0]:selected_years[1]]
 
     # Calculate the remaining GDP after subtracting healthcare costs
-    filtered_data['Remaining GDP'] = filtered_data['GDP at marketprice'] - filtered_data['Total healthcare costs']
+    filtered_data['Remaining GDP'] = (filtered_data['GDP at marketprice'] - filtered_data['Total healthcare costs']) / 1000  # Convert to billions
 
     # Columns
     col1, col2 = st.columns([3, 7])  # 3/10 and 7/10 widths
@@ -59,7 +59,7 @@ def app():
         average_spending, average_growth_healthcare, average_growth_gdp = calculate_metrics(filtered_data, selected_years, healthcare_data)
 
         # Show metrics
-        st.metric(label=f"Average Healthcare Spending ({selected_years[0]} - {selected_years[1]})", value=f"{(average_spending / 1000):.2f}B SEK")
+        st.metric(label=f"Average Healthcare Spending ({selected_years[0]} - {selected_years[1]})", value=format_to_billions(average_spending))
         st.metric(label=f"Average Yearly Growth Rate for Healthcare Spending ({selected_years[0]} - {selected_years[1]})", value=f"{average_growth_healthcare:.2f}%")
         st.metric(label=f"Average Yearly Growth Rate for GDP ({selected_years[0]} - {selected_years[1]})", value=f"{average_growth_gdp:.2f}%")
 
@@ -83,16 +83,13 @@ def app():
 
         # Add annotations at the top of each bar
         for i, row in filtered_data.iterrows():
-            gdp_value_billions = row['GDP at marketprice'] / 1000  # Convert to billions
+            gdp_value_billions = format_to_billions(row['GDP at marketprice'])  # Use the function to format the value
             fig.add_annotation(
                 x=i,
                 y=row['GDP at marketprice'],
-                text=f"{gdp_value_billions:.0f}B",
+                text=gdp_value_billions,
                 showarrow=False,
-                font=dict(
-                    size=12,
-                    color="#ffffff"
-                ),
+                font=dict(size=12, color="#ffffff"),
                 align="center",
                 bgcolor="rgba(0,0,0,0.5)",
                 xanchor="center",
