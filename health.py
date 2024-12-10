@@ -72,6 +72,7 @@ def app():
                             y=filtered_data['Total healthcare costs'],
                             name='Total Healthcare Costs',
                             marker_color=st.get_option("theme.secondaryBackgroundColor"),  # Match Streamlit theme
+                            hovertemplate='%{y}'
                             ))
 
         # Add the remaining GDP as the stacked bar on top of healthcare costs
@@ -79,14 +80,18 @@ def app():
                             y=filtered_data['Remaining GDP'],
                             name='GDP excluding healthcare costs',  # Updated label
                             marker_color=st.get_option("theme.primaryColor"),  # Match Streamlit theme
+                            hovertemplate='%{y}'
                             ))
 
-        # Add annotations at the top of each bar
+            # Add annotations at the top of each bar
         for i, row in filtered_data.iterrows():
-            gdp_value_billions = format_to_billions(row['GDP at marketprice'])  # Use the function to format the value
+            # Use the function to format the value for annotation
+            gdp_value_billions = format_to_billions(row['GDP at marketprice'])  # Or use another column for annotations
+            
+            # Adjust the y position to be slightly above the top of the bar
             fig.add_annotation(
                 x=i,
-                y=row['GDP at marketprice'],
+                y=row['GDP at marketprice'] + (row['GDP at marketprice'] * 0.02),  # Add 2% of the value for spacing
                 text=gdp_value_billions,
                 showarrow=False,
                 font=dict(size=12, color="#ffffff"),
@@ -98,8 +103,8 @@ def app():
 
         # Update layout to remove gridlines
         fig.update_layout(barmode='stack', title=f'Total Healthcare Costs vs. GDP at Market Price ({selected_years[0]} - {selected_years[1]})',
-                        xaxis_title='Year', yaxis_title='Billion SEK',
-                        template="plotly", xaxis=dict(showgrid=False), yaxis=dict(showgrid=False, tickformat="$.0f"))
+                        xaxis_title='Year', yaxis_title='Thousand SEK',
+                        template="plotly", xaxis=dict(showgrid=False), yaxis=dict(showgrid=False))
 
         # Show plot
         st.plotly_chart(fig)
