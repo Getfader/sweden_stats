@@ -170,7 +170,7 @@ def get_healthcare_data():
     # Drop the original 'key' column
     df.drop('key', axis=1, inplace=True)
 
-    # Extract mean age and median age from the 'values' column
+    # Extract relevant data from the 'values' column
     df['Total healthcare costs'] = df['values'].apply(lambda x: float(x[0]) if x[0] != '..' else 0)
     df['GDP at marketprice'] = df['values'].apply(lambda x: float(x[1]) if x[1] != '..' else 0)
     df['GDP Percent %'] = df['values'].apply(lambda x: float(x[2]) if x[2] != '..' else 0)
@@ -178,6 +178,11 @@ def get_healthcare_data():
     # Drop the original 'values' column
     df.drop('values', axis=1, inplace=True)
 
+    # Convert 'Total healthcare costs' and 'GDP at marketprice' from thousands to full values
+    df['Total healthcare costs'] = df['Total healthcare costs'] * 1000  # Convert to full value
+    df['GDP at marketprice'] = df['GDP at marketprice'] * 1000  # Convert to full value
+
+    # Set the 'year' column as the index
     df.set_index('year', inplace=True)
 
     return df
@@ -511,5 +516,5 @@ def format_to_billions(value):
     Returns:
         str: The formatted value in billions with the 'B SEK' suffix.
     """
-    value_in_billions = value / 1000  # Convert from thousands to billions
+    value_in_billions = value / 1000000  # Convert from full values to billions
     return f"{value_in_billions:,.2f}B SEK"
