@@ -83,7 +83,8 @@ def app():
 
         # Add annotations at the top of each bar
         for i, row in filtered_data.iterrows():
-            gdp_value_billions = format_to_billions(row['GDP at marketprice'])  # Use the function to format the value
+            # Directly format the GDP value to billions and remove decimals
+            gdp_value_billions = f"{row['GDP at marketprice'] / 1000000000:.0f}"  # No decimals in annotation
             fig.add_annotation(
                 x=i,
                 y=row['GDP at marketprice'],
@@ -94,7 +95,7 @@ def app():
                 bgcolor="rgba(0,0,0,0.5)",
                 xanchor="center",
                 yanchor="bottom"
-            )
+                )
 
         # Update layout to remove gridlines
         fig.update_layout(barmode='stack', title=f'Total Healthcare Costs vs. GDP at Market Price ({selected_years[0]} - {selected_years[1]})',
